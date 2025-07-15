@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<h2>📊 Dashboard</h2>
+<div style="margin-bottom: 25px;">
+    <p><strong>Total Predictions:</strong> {{ total_predictions }}</p>
+    <p><strong>Average Predicted Price:</strong> ₹ {{ avg_price }}</p>
+</div>
+
+{% if history %}
+    <h3>📌 Prediction History</h3>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 15px;">
+        <thead style="background-color: #f3f3f3;">
+            <tr>
+                <th style="padding: 10px; border: 1px solid #ddd;">Date</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Predicted Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in history %}
+            <tr>
+                <td style="padding: 10px; border: 1px solid #eee;">{{ item.timestamp|date:"Y-m-d H:i" }}</td>
+                <td style="padding: 10px; border: 1px solid #eee;">₹ {{ item.predicted_price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>📈 Graphical Insights</h3>
+
+    <div class="chart-grid">
+        <div class="chart-box"><canvas id="lineChart"></canvas></div>
+        <div class="chart-box"><canvas id="barChart"></canvas></div>
+        <div class="chart-box"><canvas id="monthlyChart"></canvas></div>
+        <div class="chart-box"><canvas id="pieChart"></canvas></div>
+    </div>
+
+    <style>
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .chart-box {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            height: 400px;
+        }
+
+        .chart-box canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
+
+    <!-- SHAP Summary Plot Section -->
+    <div style="margin-top: 50px;">
+        <h3>🧠 Model Explanation with SHAP</h3>
+        <p>This SHAP summary plot shows how each feature impacts the prediction.</p>
+        <div style="text-align: center;">
+            <img src="{% static 'images/shap_summary.png' %}" alt="SHAP Summary Plot" style="max-width: 100%; border: 1px solid #ccc; padding: 10px;">
+        </div>
+    </div>
+
+{% else %}
+    <p>No prediction history available.</p>
+{% endif %}
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% if history_json %}
+<script>
+    const history = {{ history_json|safe }};
+    const labels = history.map(item => new Date(item.timestamp).toLocaleDateString());
+    const prices = history.map(item => item.predicted_price);
+
+    // Furnishing Status Count
+    const statusCounts = {};
+    history.forEach(item => {
+        const status = item.furnishingstatus || 'Unknown';
+        statusCounts[status] = (statusCounts[status] || 0) + 1;
+    });
+
+    // Monthly Count
+    const monthlyData = {};
+    history.forEach(item => {
+        const date = new Date(item.timestamp);
+        const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        monthlyData[month] = (monthlyData[month] || 0) + 1;
+    });
+
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: true }
+        }
+    };
+
+    new Chart(document.getElementById('lineChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Predicted Price',
+                data: prices,
+                borderColor: '#6c3483',
+                backgroundColor: '#d7bde2',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: commonOptions
+    });
+
+    new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Price',
+                data: prices,
+                backgroundColor: '#a18cd1'
+            }]
+        },
+        options: commonOptions
+    });
+
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(monthlyData),
+            datasets: [{
+                label: 'Predictions per Month',
+                data: Object.values(monthlyData),
+                backgroundColor: '#6c3483'
+            }]
+        },
+        options: commonOptions
+    });
+
+    new Chart(document.getElementById('pieChart'), {
+        type: 'pie',
+        data: {
+            labels: Object.keys(statusCounts),
+            datasets: [{
+                data: Object.values(statusCounts),
+                backgroundColor: ['#ff9a9e', '#fbc2eb', '#a18cd1', '#fad0c4']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+</script>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Home | House Price Predictor{% endblock %}
+
+{% block content %}
+<div style="background: #fdf2f8; padding: 40px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.08);">
+    <h2 style="color: #6c3483; font-size: 28px;">👋 Welcome to the House Price Predictor</h2>
+    <p style="font-size: 16px; margin-top: 15px;">
+        This intelligent platform helps you estimate the price of a house based on various features like:
+        <ul style="line-height: 1.8; padding-left: 20px;">
+            <li>Area (sq.ft)</li>
+            <li>Number of Bedrooms and Bathrooms</li>
+            <li>Availability of Amenities like Parking, Air Conditioning</li>
+            <li>Location preferences and more...</li>
+        </ul>
+    </p>
+    <p style="font-size: 16px; margin-top: 15px;">
+        ➡️ Click on <strong><a href="{% url 'predict' %}" style="color: #6c3483; text-decoration: underline;">Predict</a></strong> in the navbar to get started with a new prediction.
+    </p>
+    <p style="font-size: 16px;">
+        📊 Or visit the <strong><a href="{% url 'dashboard' %}" style="color: #6c3483; text-decoration: underline;">Dashboard</a></strong> to view your prediction history and visual insights.
+    </p>
+</div>
+{% endblock %}

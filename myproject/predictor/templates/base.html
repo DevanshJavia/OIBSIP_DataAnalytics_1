@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}House Price Predictor{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333;
+        }
+        [data-theme="dark"] {
+            --bg-color: #1e1e2f;
+            --text-color: #f0f0f0;
+        }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        nav {
+            background-color: #6c3483;
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+        nav .right a {
+            margin-left: 20px;
+        }
+        .container {
+            padding: 40px;
+            max-width: 1000px;
+            margin: auto;
+        }
+        .theme-toggle {
+            background-color: white;
+            color: #6c3483;
+            border: none;
+            border-radius: 5px;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <nav>
+        <div class="left">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'predict' %}">Predict</a>
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'about' %}">About</a>
+        </div>
+        <div class="right">
+            <button class="theme-toggle" onclick="toggleTheme()">Toggle Mode</button>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+        }
+    </script>
+</body>
+</html>
